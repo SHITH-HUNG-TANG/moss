@@ -1,0 +1,8 @@
+f = open("list.txt", 'r')
+file_name = f.read()
+f.close()
+file_name = file_name.replace('\n',' ')
+out = open("file_name.txt", "w")
+out.write(file_name)
+out.close()
+print(file_name)
