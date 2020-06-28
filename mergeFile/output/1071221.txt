@@ -1,0 +1,1127 @@
+#include"s1071221_MyArray_hw701.h"
+#include<algorithm>
+#include<iostream>
+#include <stdexcept>
+using namespace std;
+
+/*template<typename T>
+ostream& operator<<(ostream& output, const MyArray<T>& ans)
+{
+	for (int i = 0; i < ans.size; i++)
+	{
+		output << ans.data[i] << " ";
+	}
+	output << endl;
+	return output;
+}*/
+template<typename T>
+MyArray<T>::MyArray(int Capacity)
+{
+	size = 0;
+	Capacity = capacity;
+	data = new T[Capacity]();
+}
+
+template<typename T>
+MyArray<T>::MyArray(int Size, T value)
+{
+	size = Size;
+	data = new T[size];
+	for (int i = 0; i < size; i++)
+	{
+		data[i] = value;
+	}
+}
+template <typename T>
+MyArray<T>::MyArray(T value[], int Size)
+{
+	size = Size;
+	data = new T[size];
+	for (int i = 0; i < size; i++)
+	{
+		data[i] = value[i];
+	}
+}
+template<typename T>
+MyArray<T>::MyArray(const MyArray<T>& ans)
+{
+	capacity = ans.capacity;
+	size = ans.size;
+	data = new T[size];
+	for (int i = 0; i < size; i++)
+	{
+		data[i] = ans.data[i];
+	}
+}
+
+template<typename T>
+MyArray<T>::~MyArray()
+{
+	//delete[]data;
+}
+
+template<typename T>
+const MyArray<T>& MyArray<T>::operator=(const MyArray<T>& output)//save
+{
+	if (this != &output)//確保this指的位置和right的位置不同 以避免自己呼叫後傳入自己
+	{
+		if (size != output.size)//分配新的陣列
+		{
+			delete[]data;//釋放
+			size = output.size;//重新調整大小
+			data = new T[size];//create space for array copy
+		}
+		for (int i = 0; i < size; i++)
+		{
+			data[i] = output.data[i];//copy array into object
+		}
+	}
+	return *this;
+}
+
+template<typename T>
+bool MyArray<T>::operator==(const MyArray<T>& right) const//save
+{
+	if (size != right.size)
+	{
+		return false;
+	}
+	else
+	{
+		for (int i = 0; i < size; i++)
+		{
+			if (data[i] != right.data[i])
+			{
+				return false;
+			}
+		}
+	}
+	return false;
+}
+
+template<typename T>
+bool MyArray<T>::operator!=(const MyArray<T>& right) const
+{
+	return !(*this == right);
+}
+
+template <typename T>
+MyArray<T> MyArray<T>::operator+(const MyArray<T>& right) const
+{
+	MyArray ans;
+	ans.size = size + right.size;
+	T* buffer = new T[ans.size]();
+	for (int i = 0; i < size; i++)
+	{
+		buffer[i] = data[i];
+	}
+	for (int i = size; i < ans.size; i++)
+	{
+		buffer[i] = right.data[i - size];
+	}
+	ans.resize(ans.size);
+	delete[]ans.data;
+	ans.data = buffer;
+	return ans;
+}
+
+template<typename T>
+MyArray<T>& MyArray<T>::operator+=(const MyArray<T>& right)
+{
+	/*MyArray ans;
+	ans.size = size + right.size;
+	T* buffer = new T[ans.size]();
+	for (int i = 0; i < size; i++)
+	{
+		buffer[i] = data[i];
+	}
+	for (int i = size; i < ans.size; i++)
+	{
+		buffer[i] = right.data[i - size];
+	}
+	ans.resize(ans.size);
+	delete[]ans.data;
+	ans.data = buffer;
+	return *this;*/
+	* this = *this + right;
+	return *this;
+}
+
+template<typename T>
+T& MyArray<T>::operator[](int subscript)
+{
+	if (subscript < 0 || subscript >= size)
+	{
+		cerr << "\nError: Subscript " << subscript << " out of range" << endl;
+		exit(1);
+	}
+	return data[subscript];
+}
+
+template<typename T>
+T MyArray<T>::operator[](int subscript) const
+{
+	if (subscript < 0 || subscript >= size)
+	{
+		cerr << "\nError: Subscript " << subscript << " out of range" << endl;
+		exit(1);
+	}
+	return data[subscript];
+}
+
+template<typename T>
+T& MyArray<T>::at(int i)
+{
+	try
+	{
+		return data[i];
+	}
+	catch (const out_of_range& oor)
+	{
+		cerr << "Out of Range error: " << oor.what() << endl;
+	}
+}
+
+template<typename T>
+T MyArray<T>::at(int i) const
+{
+	try
+	{
+		return data[i];
+	}
+	catch (const out_of_range& oor)
+	{
+		cerr << "Out of Range error: " << oor.what() << endl;
+	}
+}
+
+template<typename T>
+int MyArray<T>::getSize() const
+{
+	return size;
+}
+
+template<typename T>
+int MyArray<T>::getCapacity() const
+{
+	return capacity;
+}
+
+template <typename T>
+void MyArray<T>::resize(size_t n, char c)
+{
+	if (n <= size)
+	{
+		size = n;
+	}
+	else
+	{
+		reserve(n);
+		for (; size < n; size++)
+		{
+			data[size] = c;
+		}
+		size = n;
+	}
+}
+template <typename T>
+void  MyArray<T>::reserve(size_t n)
+{
+	if (n > capacity)
+	{
+		capacity = max(int(n), 2 * capacity);
+		T* new_data_ptr = new T[capacity];
+		for (size_t i = 0; i < size; i++)
+		{
+			new_data_ptr[i] = data[i];
+		}
+		delete[] data;
+		data = new_data_ptr;
+	}
+}//將capacity直接變成所傳入的變數
+template<typename T>
+void MyArray<T>::shrink_to_fit()//save
+{
+	;
+	T* buffer = new T[size];
+	for (int i = 0; i < size; i++)
+		buffer[i] = data[i];
+	delete[] data;
+	data = buffer;
+}
+
+template<typename T>
+void  MyArray<T>::clear()//save
+{
+	if (!(isEmpty()))
+	{
+		size = 0;
+	}
+}
+
+template<typename T>
+bool  MyArray<T>::isEmpty()//save
+{
+	if (size == 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+template class  MyArray<int>;
+template class  MyArray<char>;
+template class MyArray<float>;
+template class  MyArray<string>;#include<iostream>
+#ifndef a
+#define a
+using namespace std;
+
+template<typename T>
+class MyArray {	//modify this class into a template class
+	friend ostream& operator<<(ostream& output, const MyArray<T>& ans)
+	{
+		for (int i = 0; i < ans.size; i++)
+		{
+			output << ans.data[i] ;
+		}
+		return output;
+	}
+	friend istream& operator>>(istream& input, MyArray<T>& str) {
+
+		string number;
+		input >> number;
+		str.size = number.size();
+		for (int i = 0; i < str.size; i++)
+		{
+			str.data[i] = number[i];
+		}
+		return input;
+	}
+public:
+	MyArray(int Capacity = 10);
+	MyArray(int Size, T value);
+	MyArray(T value[], int Size);
+	MyArray(const MyArray<T>&);
+	~MyArray();
+	const MyArray<T>& operator=(const MyArray<T>&);
+	bool operator==(const MyArray<T>&) const;
+	bool operator!=(const MyArray<T>&) const;
+	MyArray<T> operator+(const MyArray<T>&) const;	//new
+	MyArray<T>& operator+=(const MyArray<T>&);		//new
+	T& operator[](int);
+	T operator[](int) const;
+	T& at(int);		//new
+	T at(int) const;	//new
+
+	int getSize() const ;
+	int getCapacity() const;
+	void resize(size_t size, char item=' ');
+	void reserve(size_t size);
+	void shrink_to_fit();	//new
+	void clear();			//new
+	bool isEmpty();			//new
+protected:
+	int size;
+	int capacity = 10;
+	T* data ;
+};
+#endif // !a
+#include"s1071221_MyArray_hw702.h"
+#include<iostream>
+#include<string>
+using namespace std;
+
+MyString::MyString():MyArray(10)
+{
+}
+MyString::MyString(const MyString& str):MyArray(str)
+{
+}
+MyString::MyString(const MyString& str, size_t pos, size_t len )//string t(s, 0, 5); //值為複製字串 s，從索引位置0開始，指定複製的長度5
+{
+	if (size < str.size)
+	{
+		size = str.size;
+		for (int i = pos; i < len; i++)
+		{
+			data[i - pos] = str[i];
+		}
+	}
+	else
+	{
+		for (int i = pos; i < len; i++)
+		{
+			data[i - pos] = str[i];
+		}
+	}
+}
+MyString::MyString(const char* s)
+{
+	if (NULL == s)
+	{
+		return;
+	}
+	size = strlen(s);
+	data = new char[size + 1];
+	for (int i = 0; i < size; i++)
+	{
+		data[i] = s[i];
+	}
+}
+MyString::~MyString()
+{
+	//delete[]data;
+}
+MyString&MyString::append(const MyString& str)
+{
+	MyArray<char>::operator+=(str);
+	return *this;
+}
+MyString MyString::substr(size_t pos, size_t len ) const
+{
+	MyString ans;
+	ans.size = len;
+	for (int i = 0; i < len; i++)
+	{
+		ans.data[i] = data[i + pos];
+	}
+	return ans;
+}
+MyString& MyString::insert(size_t pos, const MyString& str, size_t subpos, size_t sublen)
+{
+	//STR2 cc f
+	//insert str3 = “abcd”
+	//STR2.Insert (3, str3, 1, 2);
+	//將bc插入STR2的第三位
+
+	MyString after;//asd fgh
+	after.resize(size - pos, ' ');//7-3=4 asd 
+
+	MyString sub;
+	sub = str.substr(subpos, sublen);
+	resize(size+ sub.size, ' ');//所需存放
+
+	for (int i = 0; i < sub.size; i++)
+	{
+		data[i + pos] = sub[i];
+	}
+	return *this;
+}
+MyString&MyString::insert(size_t pos, const MyString& str)//example: str = "to be question", str2 = "the "
+{
+	MyString ans(*this);//to be question
+	ans.size = size + str.size;//14+3
+	//ans = new char[ans.size]();
+	for (int i = pos; i < size; i++)//後退
+	{
+		ans.data[i + str.size] = ans.data[i];
+	}
+	for (int i = 0; i < str.size; i++)
+	{
+		ans.data[i+pos] = str.data[i];
+	}
+	return ans;
+}
+MyString& MyString::erase(size_t pos, size_t len)
+{
+	char* p_old = data;
+	size -= len;
+	data = new char[size + 1];
+	for (size_t i = 0; i < pos; i++)
+	{
+		data[i] = p_old[i];
+	}
+	for (size_t i = pos; i < size; i++)
+	{
+		data[i] = p_old[i + len];
+	}
+	*(data + size) = ' ';
+	return *this;
+}
+size_t MyString::find(const MyString& str, size_t pos ) const
+{
+	if (pos > size) 
+	{
+		return -1;
+	}
+	for (size_t i = pos; str.size + i <= size; ++i)
+	{
+		if (strncmp(data + i, str.data, str.size) == 0) 
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+size_t MyString::find_first_of(const MyString& str, size_t pos ) const
+{
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = pos; j < str.size; j++)
+		{
+			if (data[i] == str[j])
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
+}#ifndef PG2MyString_H
+#define PG2MyString_H
+#include <iostream>
+#include<string>
+#include "s1071221_MyArray_hw701.h"
+using namespace std;
+
+class MyString :public MyArray<char>
+{
+	//friend ostream &operator<<(ostream& output, const MyString& str);
+	friend ostream& operator<<(ostream& output, const MyString&str)
+	{
+		for (int i = 0; i < str.size; i++)
+			output << str.data[i];
+		return output;
+	}
+	friend istream& operator>>(istream& input, MyString& str)
+	{
+		string number;
+		input >> number;
+		str.size = number.size();
+		for (int i = 0; i < str.size; i++)
+		{
+			str.data[i] = number[i];
+		}
+		return input;
+	}
+public:
+	MyString();
+	//篶硑才﹃箂才
+	// *纐粄甧秖= 10
+
+	MyString(const MyString& str);
+	//篶硑¨ str〃捌セ 狡籹篶硑ㄧ计
+
+	MyString(const MyString& str, size_t pos, size_t len = msize); // 才﹃篶硑ㄧ计
+	//狡籹眖才竚¨ pos〃秨﹍阁禫¨ len〃才str场だ
+	//┪str挡Ю狦strび祏┪len琌string :: msize
+
+	MyString(const char* s);
+	//狡籹s才C才﹃计舱
+	// char * s琌null沧ゎ才皐 ┮Τ才*/
+	//盢狡籹才﹃穝
+
+	~MyString();
+	// Destroys the string object.
+
+	static const size_t msize = -1;
+	//Note: maximum size. You may use SIZE_MAX at <cstdint>, too.
+
+	MyString& append(const MyString& str);
+	//讽玡MyStringЮ场str
+	// *ōまノ
+
+	MyString substr(size_t pos, size_t len = msize) const;
+	//才﹃琌癸禜场だ眖才竚pos秨﹍阁禫len才
+	//┪才﹃ソЮ非
+	// *穝篶硑才﹃癸禜ㄤ﹍て赣癸禜才﹃捌セ
+
+	MyString& insert(size_t pos, const MyString& str);
+	// Inserts a copy of a str at "pos".
+	// example: str = "to be question", str2 = "the "
+	// str.insert(6,str2); 
+	// = to be (the )question = to be the question
+	// *Return the reference of itself
+
+	MyString& insert(size_t pos, const MyString& str, size_t subpos, size_t sublen = msize);
+	// Inserts a copy of a substring of str at "pos". The substring is the portion of "str" that
+	// begins at the character position subpos and spans sublen characters (or until the end of str).
+	// example: str = "to be the question", str3 = "or not to be"
+	// str.insert(6,str3,3,4); // to be (not )the question
+	// *Return the reference of itself
+
+	MyString& erase(size_t pos, size_t len = msize);
+	// Erases the portion of the string value that begins at the character position pos and spans len characters 
+	// (or until the end of the string, if either the content is too short or if len is string::msize.)
+	// *Return the reference of itself
+
+	size_t find(const MyString& str, size_t pos = 0) const;
+	// Searches the portion of the string value that begins at the character position "pos" until the end of the string
+	// for the first occurrence of the string str.
+	// Return Value: The position of the first character of the first match. If no matches were found, the function returns MyString::msize.
+
+	size_t find_first_of(const MyString& str, size_t pos = 0) const;
+	// Searches the portion of the string value that begins at the character position "pos" until the end of the string
+	// for the first character that matches *any* of the characters of the string str.
+	// Return Value: The position of the first character that matches. If no matches are found, the function returns MyString::msize.
+
+	//You may add several helper functions or operators here
+	//...
+}; // end class MyString
+
+#endif#include"s1071221_MyArray_hw701.h"
+#include<algorithm>
+#include<iostream>
+#include <stdexcept>
+using namespace std;
+
+/*template<typename T>
+ostream& operator<<(ostream& output, const MyArray<T>& ans)
+{
+	for (int i = 0; i < ans.size; i++)
+	{
+		output << ans.data[i] << " ";
+	}
+	output << endl;
+	return output;
+}*/
+template<typename T>
+MyArray<T>::MyArray(int Capacity)
+{
+	size = 0;
+	Capacity = capacity;
+	data = new T[Capacity]();
+}
+
+template<typename T>
+MyArray<T>::MyArray(int Size, T value)
+{
+	size = Size;
+	data = new T[size];
+	for (int i = 0; i < size; i++)
+	{
+		data[i] = value;
+	}
+}
+template <typename T>
+MyArray<T>::MyArray(T value[], int Size)
+{
+	size = Size;
+	data = new T[size];
+	for (int i = 0; i < size; i++)
+	{
+		data[i] = value[i];
+	}
+}
+template<typename T>
+MyArray<T>::MyArray(const MyArray<T>& ans)
+{
+	capacity = ans.capacity;
+	size = ans.size;
+	data = new T[size];
+	for (int i = 0; i < size; i++)
+	{
+		data[i] = ans.data[i];
+	}
+}
+
+template<typename T>
+MyArray<T>::~MyArray()
+{
+	//delete[]data;
+}
+
+template<typename T>
+const MyArray<T>& MyArray<T>::operator=(const MyArray<T>& output)//save
+{
+	if (this != &output)//確保this指的位置和right的位置不同 以避免自己呼叫後傳入自己
+	{
+		if (size != output.size)//分配新的陣列
+		{
+			delete[]data;//釋放
+			size = output.size;//重新調整大小
+			data = new T[size];//create space for array copy
+		}
+		for (int i = 0; i < size; i++)
+		{
+			data[i] = output.data[i];//copy array into object
+		}
+	}
+	return *this;
+}
+
+template<typename T>
+bool MyArray<T>::operator==(const MyArray<T>& right) const//save
+{
+	if (size != right.size)
+	{
+		return false;
+	}
+	else
+	{
+		for (int i = 0; i < size; i++)
+		{
+			if (data[i] != right.data[i])
+			{
+				return false;
+			}
+		}
+	}
+	return false;
+}
+
+template<typename T>
+bool MyArray<T>::operator!=(const MyArray<T>& right) const
+{
+	return !(*this == right);
+}
+
+template <typename T>
+MyArray<T> MyArray<T>::operator+(const MyArray<T>& right) const
+{
+	MyArray ans;
+	ans.size = size + right.size;
+	T* buffer = new T[ans.size]();
+	for (int i = 0; i < size; i++)
+	{
+		buffer[i] = data[i];
+	}
+	for (int i = size; i < ans.size; i++)
+	{
+		buffer[i] = right.data[i - size];
+	}
+	ans.resize(ans.size);
+	delete[]ans.data;
+	ans.data = buffer;
+	return ans;
+}
+
+template<typename T>
+MyArray<T>& MyArray<T>::operator+=(const MyArray<T>& right)
+{
+	/*MyArray ans;
+	ans.size = size + right.size;
+	T* buffer = new T[ans.size]();
+	for (int i = 0; i < size; i++)
+	{
+		buffer[i] = data[i];
+	}
+	for (int i = size; i < ans.size; i++)
+	{
+		buffer[i] = right.data[i - size];
+	}
+	ans.resize(ans.size);
+	delete[]ans.data;
+	ans.data = buffer;
+	return *this;*/
+	* this = *this + right;
+	return *this;
+}
+
+template<typename T>
+T& MyArray<T>::operator[](int subscript)
+{
+	if (subscript < 0 || subscript >= size)
+	{
+		cerr << "\nError: Subscript " << subscript << " out of range" << endl;
+		exit(1);
+	}
+	return data[subscript];
+}
+
+template<typename T>
+T MyArray<T>::operator[](int subscript) const
+{
+	if (subscript < 0 || subscript >= size)
+	{
+		cerr << "\nError: Subscript " << subscript << " out of range" << endl;
+		exit(1);
+	}
+	return data[subscript];
+}
+
+template<typename T>
+T& MyArray<T>::at(int i)
+{
+	try
+	{
+		return data[i];
+	}
+	catch (const out_of_range& oor)
+	{
+		cerr << "Out of Range error: " << oor.what() << endl;
+	}
+}
+
+template<typename T>
+T MyArray<T>::at(int i) const
+{
+	try
+	{
+		return data[i];
+	}
+	catch (const out_of_range& oor)
+	{
+		cerr << "Out of Range error: " << oor.what() << endl;
+	}
+}
+
+template<typename T>
+int MyArray<T>::getSize() const
+{
+	return size;
+}
+
+template<typename T>
+int MyArray<T>::getCapacity() const
+{
+	return capacity;
+}
+
+template <typename T>
+void MyArray<T>::resize(size_t n, char c)
+{
+	if (n <= size)
+	{
+		size = n;
+	}
+	else
+	{
+		reserve(n);
+		for (; size < n; size++)
+		{
+			data[size] = c;
+		}
+		size = n;
+	}
+}
+template <typename T>
+void  MyArray<T>::reserve(size_t n)
+{
+	if (n > capacity)
+	{
+		capacity = max(int(n), 2 * capacity);
+		T* new_data_ptr = new T[capacity];
+		for (size_t i = 0; i < size; i++)
+		{
+			new_data_ptr[i] = data[i];
+		}
+		delete[] data;
+		data = new_data_ptr;
+	}
+}//將capacity直接變成所傳入的變數
+template<typename T>
+void MyArray<T>::shrink_to_fit()//save
+{
+	;
+	T* buffer = new T[size];
+	for (int i = 0; i < size; i++)
+		buffer[i] = data[i];
+	delete[] data;
+	data = buffer;
+}
+
+template<typename T>
+void  MyArray<T>::clear()//save
+{
+	if (!(isEmpty()))
+	{
+		size = 0;
+	}
+}
+
+template<typename T>
+bool  MyArray<T>::isEmpty()//save
+{
+	if (size == 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+template class  MyArray<int>;
+template class  MyArray<char>;
+template class MyArray<float>;
+template class  MyArray<string>;#include<iostream>
+#ifndef a
+#define a
+using namespace std;
+
+template<typename T>
+class MyArray {	//modify this class into a template class
+	friend ostream& operator<<(ostream& output, const MyArray<T>& ans)
+	{
+		for (int i = 0; i < ans.size; i++)
+		{
+			output << ans.data[i] ;
+		}
+		return output;
+	}
+	friend istream& operator>>(istream& input, MyArray<T>& str) {
+
+		string number;
+		input >> number;
+		str.size = number.size();
+		for (int i = 0; i < str.size; i++)
+		{
+			str.data[i] = number[i];
+		}
+		return input;
+	}
+public:
+	MyArray(int Capacity = 10);
+	MyArray(int Size, T value);
+	MyArray(T value[], int Size);
+	MyArray(const MyArray<T>&);
+	~MyArray();
+	const MyArray<T>& operator=(const MyArray<T>&);
+	bool operator==(const MyArray<T>&) const;
+	bool operator!=(const MyArray<T>&) const;
+	MyArray<T> operator+(const MyArray<T>&) const;	//new
+	MyArray<T>& operator+=(const MyArray<T>&);		//new
+	T& operator[](int);
+	T operator[](int) const;
+	T& at(int);		//new
+	T at(int) const;	//new
+
+	int getSize() const ;
+	int getCapacity() const;
+	void resize(size_t size, char item=' ');
+	void reserve(size_t size);
+	void shrink_to_fit();	//new
+	void clear();			//new
+	bool isEmpty();			//new
+protected:
+	int size;
+	int capacity = 10;
+	T* data ;
+};
+#endif // !a
+#include"s1071221_MyArray_hw702.h"
+#include<iostream>
+#include<string>
+using namespace std;
+
+MyString::MyString():MyArray(10)
+{
+}
+MyString::MyString(const MyString& str):MyArray(str)
+{
+}
+MyString::MyString(const MyString& str, size_t pos, size_t len )//string t(s, 0, 5); //值為複製字串 s，從索引位置0開始，指定複製的長度5
+{
+	if (size < str.size)
+	{
+		size = str.size;
+		for (int i = pos; i < len; i++)
+		{
+			data[i - pos] = str[i];
+		}
+	}
+	else
+	{
+		for (int i = pos; i < len; i++)
+		{
+			data[i - pos] = str[i];
+		}
+	}
+}
+MyString::MyString(const char* s)
+{
+	if (NULL == s)
+	{
+		return;
+	}
+	size = strlen(s);
+	data = new char[size + 1];
+	for (int i = 0; i < size; i++)
+	{
+		data[i] = s[i];
+	}
+}
+MyString::~MyString()
+{
+	//delete[]data;
+}
+MyString&MyString::append(const MyString& str)
+{
+	MyArray<char>::operator+=(str);
+	return *this;
+}
+MyString MyString::substr(size_t pos, size_t len ) const
+{
+	MyString ans;
+	ans.size = len;
+	for (int i = 0; i < len; i++)
+	{
+		ans.data[i] = data[i + pos];
+	}
+	return ans;
+}
+MyString& MyString::insert(size_t pos, const MyString& str, size_t subpos, size_t sublen)
+{
+	//STR2 cc f
+	//insert str3 = “abcd”
+	//STR2.Insert (3, str3, 1, 2);
+	//將bc插入STR2的第三位
+
+	MyString after;//asd fgh
+	after.resize(size - pos, ' ');//7-3=4 asd 
+
+	MyString sub;
+	sub = str.substr(subpos, sublen);
+	resize(size+ sub.size, ' ');//所需存放
+
+	for (int i = 0; i < sub.size; i++)
+	{
+		data[i + pos] = sub[i];
+	}
+	return *this;
+}
+MyString&MyString::insert(size_t pos, const MyString& str)//example: str = "to be question", str2 = "the "
+{
+	MyString ans(*this);//to be question
+	ans.size = size + str.size;//14+3
+	//ans = new char[ans.size]();
+	for (int i = pos; i < size; i++)//後退
+	{
+		ans.data[i + str.size] = ans.data[i];
+	}
+	for (int i = 0; i < str.size; i++)
+	{
+		ans.data[i+pos] = str.data[i];
+	}
+	return ans;
+}
+MyString& MyString::erase(size_t pos, size_t len)
+{
+	char* p_old = data;
+	size -= len;
+	data = new char[size + 1];
+	for (size_t i = 0; i < pos; i++)
+	{
+		data[i] = p_old[i];
+	}
+	for (size_t i = pos; i < size; i++)
+	{
+		data[i] = p_old[i + len];
+	}
+	*(data + size) = ' ';
+	return *this;
+}
+size_t MyString::find(const MyString& str, size_t pos ) const
+{
+	if (pos > size) 
+	{
+		return -1;
+	}
+	for (size_t i = pos; str.size + i <= size; ++i)
+	{
+		if (strncmp(data + i, str.data, str.size) == 0) 
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+size_t MyString::find_first_of(const MyString& str, size_t pos ) const
+{
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = pos; j < str.size; j++)
+		{
+			if (data[i] == str[j])
+			{
+				return i;
+			}
+		}
+	}
+	return -1;
+}#ifndef PG2MyString_H
+#define PG2MyString_H
+#include <iostream>
+#include<string>
+#include "s1071221_MyArray_hw701.h"
+using namespace std;
+
+class MyString :public MyArray<char>
+{
+	//friend ostream &operator<<(ostream& output, const MyString& str);
+	friend ostream& operator<<(ostream& output, const MyString&str)
+	{
+		for (int i = 0; i < str.size; i++)
+			output << str.data[i];
+		return output;
+	}
+	friend istream& operator>>(istream& input, MyString& str)
+	{
+		string number;
+		input >> number;
+		str.size = number.size();
+		for (int i = 0; i < str.size; i++)
+		{
+			str.data[i] = number[i];
+		}
+		return input;
+	}
+public:
+	MyString();
+	//篶硑才﹃箂才
+	// *纐粄甧秖= 10
+
+	MyString(const MyString& str);
+	//篶硑¨ str〃捌セ 狡籹篶硑ㄧ计
+
+	MyString(const MyString& str, size_t pos, size_t len = msize); // 才﹃篶硑ㄧ计
+	//狡籹眖才竚¨ pos〃秨﹍阁禫¨ len〃才str场だ
+	//┪str挡Ю狦strび祏┪len琌string :: msize
+
+	MyString(const char* s);
+	//狡籹s才C才﹃计舱
+	// char * s琌null沧ゎ才皐 ┮Τ才*/
+	//盢狡籹才﹃穝
+
+	~MyString();
+	// Destroys the string object.
+
+	static const size_t msize = -1;
+	//Note: maximum size. You may use SIZE_MAX at <cstdint>, too.
+
+	MyString& append(const MyString& str);
+	//讽玡MyStringЮ场str
+	// *ōまノ
+
+	MyString substr(size_t pos, size_t len = msize) const;
+	//才﹃琌癸禜场だ眖才竚pos秨﹍阁禫len才
+	//┪才﹃ソЮ非
+	// *穝篶硑才﹃癸禜ㄤ﹍て赣癸禜才﹃捌セ
+
+	MyString& insert(size_t pos, const MyString& str);
+	// Inserts a copy of a str at "pos".
+	// example: str = "to be question", str2 = "the "
+	// str.insert(6,str2); 
+	// = to be (the )question = to be the question
+	// *Return the reference of itself
+
+	MyString& insert(size_t pos, const MyString& str, size_t subpos, size_t sublen = msize);
+	// Inserts a copy of a substring of str at "pos". The substring is the portion of "str" that
+	// begins at the character position subpos and spans sublen characters (or until the end of str).
+	// example: str = "to be the question", str3 = "or not to be"
+	// str.insert(6,str3,3,4); // to be (not )the question
+	// *Return the reference of itself
+
+	MyString& erase(size_t pos, size_t len = msize);
+	// Erases the portion of the string value that begins at the character position pos and spans len characters 
+	// (or until the end of the string, if either the content is too short or if len is string::msize.)
+	// *Return the reference of itself
+
+	size_t find(const MyString& str, size_t pos = 0) const;
+	// Searches the portion of the string value that begins at the character position "pos" until the end of the string
+	// for the first occurrence of the string str.
+	// Return Value: The position of the first character of the first match. If no matches were found, the function returns MyString::msize.
+
+	size_t find_first_of(const MyString& str, size_t pos = 0) const;
+	// Searches the portion of the string value that begins at the character position "pos" until the end of the string
+	// for the first character that matches *any* of the characters of the string str.
+	// Return Value: The position of the first character that matches. If no matches are found, the function returns MyString::msize.
+
+	//You may add several helper functions or operators here
+	//...
+}; // end class MyString
+
+#endif
