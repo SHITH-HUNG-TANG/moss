@@ -29,34 +29,40 @@
     <img src="img/PreFile3.png">
 </p>
 
-### 4.將所有學生處理完後，統一複製至 `${Path_to_mergeFile}/input` 裡
+### 4.新增`${Path_to_mergeFile}/input`資料夾 和 `${Path_to_mergeFile}/input`資料夾
 
 <p align="center">
-    <img src="img/PreFile4.png", width="480">
+    <img src="img/PreFile4.png">
+</p>
+
+### 5.將所有學生處理完後，統一複製至 `${Path_to_mergeFile}/input` 裡
+
+<p align="center">
     <img src="img/PreFile5.png", width="480">
+    <img src="img/PreFile6.png", width="480">
 </p>
 
-### 5.執行`python ${Path_to_mergeFile}/run.py`
+### 6.執行`python ${Path_to_mergeFile}/run.py`
 
-### 6.結果會輸出在 `${Path_to_mergeFile}/output`
-
-<p align="center">
-    <img src="img/PreFile6.png">
-</p>
-
-### 7.將`${Path_to_mergeFile}/output `中的`.txt`複製到`${Path_to_moss}/moss`裡
+### 7.結果會輸出在 `${Path_to_mergeFile}/output`
 
 <p align="center">
     <img src="img/PreFile7.png">
 </p>
 
-### 8.點擊並執行`${Path_to_moss}/moss/getName.bat`
-
-
-### 9.產生list.txt 和 file_name.txt
+### 8.將`${Path_to_mergeFile}/output `中的`.txt`複製到`${Path_to_moss}/moss`裡
 
 <p align="center">
     <img src="img/PreFile8.png">
+</p>
+
+### 9.點擊並執行`${Path_to_moss}/moss/getName.bat`
+
+
+### 10.產生list.txt 和 file_name.txt
+
+<p align="center">
+    <img src="img/PreFile9.png">
 </p>
 
 ## Usage Moss
@@ -74,7 +80,7 @@
 
 ### 4.結果會產生一個連結
 <p align="center">
-    <img src="img/PreFile9.png", width="480">
+    <img src="img/PreFile10.png", width="480">
 </p>
 
 
