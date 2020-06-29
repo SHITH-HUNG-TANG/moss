@@ -72,3 +72,9 @@
 
 ### 3.`perl moss.pl -l cc [接file_name.txt中的文字]`
 
+### 4.結果會產生一個連結
+<p align="center">
+    <img src="img/PreFile9.png", width="480">
+</p>
+
+
